@@ -3,12 +3,15 @@ package com.hmdp;
 import com.hmdp.service.IShopService;
 import com.hmdp.utils.RedisIdWorker;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 class HmDianPingApplicationTests {
@@ -16,7 +19,8 @@ class HmDianPingApplicationTests {
     IShopService shopService;
     @Autowired
     RedisIdWorker redisIdWorker;
-
+    @Autowired
+    private RedissonClient redissonClient;
     private ExecutorService es = Executors.newFixedThreadPool(500);
     @Test
     void testSaveShop() {
@@ -39,5 +43,18 @@ class HmDianPingApplicationTests {
         latch.await();
         long end = System.currentTimeMillis();
         System.out.println("time = " + (end - begin));
+    }
+
+    @Test
+    void testRedisson() throws Exception {
+        RLock lock = redissonClient.getLock("anyLock");
+        boolean isLock = lock.tryLock(1, 10, TimeUnit.SECONDS);
+        if (isLock) {
+            try {
+                System.out.println("执行业务");
+            } finally {
+                lock.unlock();
+            }
+        }
     }
 }
