@@ -88,7 +88,7 @@ class HmDianPingApplicationTests {
         }
     }
     @Test
-    void testHyperLogLog() {
+    void testHyperLogLog0() {
         String[] values = new String[1000];
         int index = 0;
         for (int i = 0; i < 1000000; i++) {
